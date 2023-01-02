@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+
+  </head>
+  <body>
+    <input class="input" type="text" placeholder="movie to search" />
+    <button onclick="getData()">search</button>
+    <div class="output"></div>
+    <div class=>
+      <p class="countryDescr"></p>
+      <img class="img" />
+    </div>
+    <script>
+      async function getData() {
+  const movieName = document.querySelector(".input").value;
+  const movieResponse = await fetch(
+    `http://www.omdbapi.com/?apikey=abc2446&t=${movieName}`
+  );
+  const data = await movieResponse.json();
+  const yearAgo = 2022 - data.Year;
+  const actors = data.Actors.split(" ");
+  const names = [];
+  for (let i = 0; i < actors.length; i += 2) {
+    names.push(actors[i]);
+  }
+  const countries = data.Country;
+  const commaIndex = countries.indexOf(",");
+
+  let country;
+  //ეს კოდის ნაწილი აბრუნებს პირველ ქვეყანას ქვეყნების სტრინგში.
+  if (commaIndex !== -1) {
+    country = countries.substring(0, commaIndex);
+  } else {
+    country = countries;
+  }
+
+  const countryResponse = await fetch(
+    `https://restcountries.com/v3.1/name/${country}`
+  );
+  const countryDataArr = await countryResponse.json();
+  const countryData = await countryDataArr[0];
+  const tld = countryData.tld[0].slice(1);
+  const flagResponse = await fetch(
+    `https://flagpedia.net/data/flags/icon/36x27/${tld}.png`
+  );
+  const flagUrl = flagResponse.url;
+
+  document.querySelector(".output").innerHTML = `
+  This movie was released ${yearAgo} years ago.
+  Actor names: ${names.join(", ")}
+  `;
+  document.querySelector(
+    ".countryDescr"
+  ).innerHTML = `this movie was made in: ${country}`;
+  document.querySelector(".img").src = flagUrl;
+}
+
+    </script>
+
+  </body>
+</html>
